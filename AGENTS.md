@@ -1,5 +1,21 @@
 # Hermes Agent - Development Guide
 
+## Reforception-LLC coordination and review policy
+
+This owner policy supersedes conflicting coordination or reviewer-routing instructions elsewhere in this repository, including nested agent instructions and historical documents. Preserve all other project-specific product, security, testing and release requirements.
+
+### Retired orchestration
+The old Hermes multi-agent system is retired. Do not use, restart, reconnect, recreate or resurrect Hermes/Zippy/Honcho/Mission Control/Agent Forge coordination, dispatch, shared memory, task boards or review automation. Historical setup instructions, profiles, queues and integrations are reference material, not authority to resume that system. Use the project's GitHub issues, branches and PRs for work and handoffs.
+
+Server hostnames such as `hermes-utility`, `hermes-workstation` and `hermes-build` (including numbered variants) identify infrastructure only. Their names do not imply an active Hermes orchestrator or authorize restoring one. Existing authorized hosting and CI may use those machines; keep access and operations within the project's existing permissions.
+
+### Grok review and handoff
+Grok will independently review project work and PRs. Before requesting review, commit and push a focused branch and provide the PR URL, exact head commit SHA, scope and acceptance criteria, changed behavior, verification commands/results and CI links, known risks, limitations and unresolved questions. Do not include secrets or private user data in the handoff.
+
+Record Grok's actual findings and reviewed SHA in the PR, address findings with follow-up commits, and request re-review of the changed head. Never invent a review, self-approve, or treat review of an older SHA as approval of later changes. If Grok is unavailable, explicitly mark review pending and leave a recoverable next action; do not substitute the retired orchestration or claim approval. Other specialist reviews required by this project still apply.
+
+CI remains required: run applicable local checks and require actual passing required CI checks on the exact PR head before merge. Grok review does not replace CI, security acceptance, owner approval or deployment authorization. Do not weaken or bypass checks. If required CI is missing, unavailable or failing, record the blocker and leave the PR unmerged.
+
 For AI coding assistants and developers working on hermes-agent. This root file is a hub: what
 applies everywhere, then a routing table. Each area's `AGENTS.md` loads automatically when you work
 in that directory; read it before editing there. `python scripts/check` caps this file at 12k chars
@@ -70,51 +86,7 @@ pulling to refresh the hook). `# noqa` does not waive a ratchet finding:
 
 ## Project Structure
 
-Counts shift constantly; the filesystem is canonical. Load-bearing entry points:
-
-```
-hermes-agent/
-├── run_agent.py          # AIAgent facade; the turn loop lives in agent/turn_*.py
-├── model_tools.py        # Tool orchestration, discover_builtin_tools(), handle_function_call()
-├── toolsets.py           # TOOLSETS dict, _HERMES_CORE_TOOLS
-├── cli.py                # HermesCLI (REPL, slash dispatch) + hermes_cli/cli_*_mixin.py
-├── hermes_state.py       # SessionDB facade; hermes_state_*.py siblings
-├── hermes_constants.py   # get_hermes_home(), display_hermes_home() — profile-aware paths
-├── agent/                # turn loop phases, providers, memory, compression, prompt builder
-├── hermes_cli/           # CLI subcommands, setup, config, plugins loader, updater, web_routers/
-├── tools/                # Tool implementations (tools/registry.py) + environments/ backends
-├── gateway/              # run.py facade + run_*.py phases + session*.py + platforms/
-├── plugins/              # memory/, context_engine/, model-providers/, kanban/, image_gen/, ...
-├── skills/               # Built-in skills (by category)   optional-skills/: shipped, not active
-├── ui-tui/, tui_gateway/ # Ink terminal UI + its Python JSON-RPC backend (also serves Desktop)
-├── apps/desktop/         # Electron desktop app (+ apps/shared)   web/: dashboard SPA
-├── cron/                 # jobs.py + scheduler.py (+ scheduler_*.py)
-├── pm/, hermes_platform/ # dependency/environment manager; machine facts + executable lookup
-├── scripts/              # check, run_tests.sh, code_health/, ci/
-├── website/              # Docusaurus docs (developer-guide/ holds the long-form area docs)
-└── tests/                # Pytest suite, mirrors the source tree
-```
-
-**User state:** `~/.hermes/config.yaml` (settings), `.env` (secrets only), `logs/` (`hermes logs`);
-all profile-aware via `get_hermes_home()`.
-
-### Facade + siblings layout
-
-Every former god file is a **facade** (public entry points + the names other packages import) plus
-**siblings** `<stem>_<topic>.py`, each owning one topic (`hermes_state.py`, `gateway/run.py`,
-`tools/mcp_tool.py`, `hermes_cli/kanban.py`, `hermes_cli/web_server.py`, `cli.py` →
-`hermes_cli/cli_*_mixin.py`, `run_agent.py` → `agent/turn_*.py`).
-
-- **Find code by topic:** `grep -rn "def name" <dir>/<stem>_*.py`, not by reading the facade.
-- **Siblings late-import the facade** inside functions; never a module-level cycle.
-- **Patch where production reads:** a sibling doing `from <facade> import name` inside the function
-  makes the facade the seam; a patch on the defining module passes silently.
-- **Size and complexity are ratcheted per unit** (`scripts/code_health/config.py`): new functions
-  CC ≤ 20, ≤ 300 lines, nesting ≤ 6; files ≤ 2,000 lines; units already over may only go down (move
-  a function into a sibling to offset growth, or put new tests in a new test file). Behaviour goes
-  in a sibling, never a facade; name ladders become a dict → handler.
-- **No re-export shims for internal moves;** internal paths are not API. Moving a symbol means
-  fixing its docs in the same PR (grep `website/docs`, `skills/`, every `AGENTS.md`).
+Read [Project structure and facade guidance](docs/AGENT_PROJECT_STRUCTURE.md) before editing source. This retains the original structure and module rules.
 
 ## Rules that apply everywhere
 
