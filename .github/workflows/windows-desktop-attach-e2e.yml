@@ -102,5 +102,5 @@ jobs:
           path: |
             apps/desktop/test-results/core
             apps/desktop/playwright-report/core
-          retention-days: 14
+          retention-days: 7
           if-no-files-found: ignore
